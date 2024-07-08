@@ -1,0 +1,21 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <EventryContentFilesPath>$(MSBuildThisFileDirectory)..\App_Plugins\Eventry\**\*.*</EventryContentFilesPath>
+  </PropertyGroup>
+
+  <Target Name="CopyEventryAssets" BeforeTargets="BeforeBuild">
+    <ItemGroup>
+      <EventryContentFiles Include="$(EventryContentFilesPath)" />
+    </ItemGroup>
+    <Message Text="Copying Eventry files: $(EventryContentFilesPath) - #@(EventryContentFiles->Count()) files" Importance="high" />
+    <Copy SourceFiles="@(EventryContentFiles)" DestinationFiles="@(EventryContentFiles->'$(MSBuildProjectDirectory)\App_Plugins\Eventry\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+  <Target Name="ClearEventryAssets" BeforeTargets="Clean">
+    <ItemGroup>
+      <EventryDir Include="$(MSBuildProjectDirectory)\App_Plugins\Eventry\" />
+    </ItemGroup>
+    <Message Text="Clear old Eventry data" Importance="high" />
+    <RemoveDir Directories="@(EventryDir)" />
+  </Target>
+</Project>

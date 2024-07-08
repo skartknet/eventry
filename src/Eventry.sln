@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.34916.146
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eventry", "Eventry\Eventry.csproj", "{ABD0D2B6-8F87-4946-A00C-FA53990EAE5A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "V14", "V14\V14.csproj", "{DBEE27CA-419F-46CE-8665-2F15EC8E5ED5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ABD0D2B6-8F87-4946-A00C-FA53990EAE5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABD0D2B6-8F87-4946-A00C-FA53990EAE5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABD0D2B6-8F87-4946-A00C-FA53990EAE5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABD0D2B6-8F87-4946-A00C-FA53990EAE5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBEE27CA-419F-46CE-8665-2F15EC8E5ED5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBEE27CA-419F-46CE-8665-2F15EC8E5ED5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBEE27CA-419F-46CE-8665-2F15EC8E5ED5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBEE27CA-419F-46CE-8665-2F15EC8E5ED5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6C4BD6F9-22F7-4533-A865-CCFD5256DCFE}
+	EndGlobalSection
+EndGlobal

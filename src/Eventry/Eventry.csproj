@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <StaticWebAssetBasePath>App_Plugins/Eventry</StaticWebAssetBasePath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Eventry</PackageId>
+    <Product>Eventry</Product>
+    <Title>Eventry</Title>
+    <Description>...</Description>
+    <PackageTags>umbraco plugin package</PackageTags>
+  </PropertyGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
+    <PackageReference Include="Umbraco.Cms.Web.Common" Version="14.0.0" />
+	  <PackageReference Include="Bergmania.OpenStreetMap" Version="6.0.0" />
+	  <PackageReference Include="Umbraco.Commerce.Cms" Version="14.0.0-alpha4" />
+	  <PackageReference Include="Umbraco.Commerce.Cms.Startup" Version="14.0.0-alpha4" />
+	  <PackageReference Include="Umbraco.Commerce.Core" Version="14.0.0-alpha4" />
+  </ItemGroup>
+</Project>
