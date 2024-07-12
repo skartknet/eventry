@@ -6,6 +6,7 @@
         {
             public static class Aliases
             {
+                public const string EventBaseComposition = "eventryEventBaseComposition";
                 public const string PhysicalEvent = "eventryPhysicalEvent";
                 public const string OnlineEvent = "eventryOnlineEvent";
             }
@@ -13,6 +14,7 @@
             public static class Guids
             {
                 public static readonly Guid BaseFolder = new("643478d7-536d-4bda-9d8c-baa378fdcf90");
+                public static readonly Guid EventBaseComposition = new("45a4e210-c226-42ba-8258-50d3b19a4276");
                 public static readonly Guid PhysicalEvent = new("d09c9116-48cf-4680-bf98-c114c4a69bc4");
                 public static readonly Guid OnlineEvent = new("967fc6bf-d02a-49af-8580-faae9cee4a2b");
             }

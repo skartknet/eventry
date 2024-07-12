@@ -36,6 +36,7 @@ namespace Eventry.Installation
                     {
                         x.Key = Constants.DataTypes.Guids.Maps;
                         x.Name = "[Eventry] Maps";
+                        x.EditorUiAlias = "Bergmania.PropertyEditorUi.OpenStreetMap";
                     }, new Bergmania.OpenStreetMap.Core.OpenStreetMapConfiguration());
 
                 }
@@ -50,7 +51,8 @@ namespace Eventry.Installation
                     CreateDataType(editor, x =>
                     {
                         x.Key = Constants.DataTypes.Guids.Tags;
-                        x.Name = "[Eventry] Tags";                        
+                        x.Name = "[Eventry] Tags"; 
+                        x.EditorUiAlias = "Umb.PropertyEditorUi.Tags";
                     },
                     new TagConfiguration
                     {
@@ -70,6 +72,7 @@ namespace Eventry.Installation
                     {
                         x.Key = Constants.DataTypes.Guids.Price;
                         x.Name = "[Eventry] Price";
+                        x.EditorUiAlias = "Uc.PropertyEditorUi.Price";
                     });
 
                 }
@@ -84,6 +87,7 @@ namespace Eventry.Installation
                     {
                         x.Key = Constants.DataTypes.Guids.Stock;
                         x.Name = "[Eventry] Stock";
+                        x.EditorUiAlias = "Uc.PropertyEditorUi.Stock";
                     });
 
                 }
