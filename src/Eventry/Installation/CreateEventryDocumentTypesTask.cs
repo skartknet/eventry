@@ -28,94 +28,101 @@ namespace Eventry.Installation
         {
 
             // Setup lazy data types
-            var gmapDataType = new Lazy<Task<IDataType?>>(async () => await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Maps));
-            var textareaDataType = new Lazy<Task<IDataType?>>(async () => await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.TextareaGuid));
-            var rteDataType = new Lazy<Task<IDataType?>>(async () => await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.RichtextEditorGuid));
-            var dateTimeDataType = new Lazy<Task<IDataType?>>(async () => await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.DatePickerWithTimeGuid));
-            var contentPickerDataType = new Lazy<Task<IDataType?>>(async () => await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.ContentPickerGuid));
-            var umPriceDataType = new Lazy<Task<IDataType?>>(async () => await _dataTypeService.GetAsync(Umbraco.Commerce.Cms.Constants.PropertyEditors.Aliases.Price));
-            var umStockDataType = new Lazy<Task<IDataType?>>(async () => await _dataTypeService.GetAsync(Umbraco.Commerce.Cms.Constants.PropertyEditors.Aliases.Stock));
+            var gmapDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Maps) ?? throw new NullReferenceException("Map datatype not available"); ;
+            var textareaDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.TextareaGuid) ?? throw new NullReferenceException("Textarea datatype not available");
+            var rteDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.RichtextEditorGuid);
+            var dateTimeDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.DatePickerWithTimeGuid);
+            var contentPickerDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.ContentPickerGuid);
+            var umPriceDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Price);
+            var umStockDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Stock);
 
 
             IContentType? existing;
             int baseFolderContentTypeId;
 
 
-            var shareProps = new[]
+            PropertyType[] shareProps = null;
+            try
             {
+                shareProps =
+                [
 
-                CreatePropertyType(await gmapDataType.Value, x =>
-                {
-                    x.Alias = "location";
-                    x.Name = "Location";
-                    x.Description = "Event physical location";
-                    x.SortOrder = 10;
-                }),
-                CreatePropertyType(await textareaDataType.Value, x =>
-                {
-                    x.Alias = "summary";
-                    x.Name = "Summary";
-                    x.Description = "";
-                    x.SortOrder = 10;
-                }),
-                CreatePropertyType(await rteDataType.Value, x =>
-                {
-                    x.Alias = "description";
-                    x.Name = "Description";
-                    x.Description = "";
-                    x.SortOrder = 20;
-                }),
-                CreatePropertyType(await umPriceDataType.Value, x =>
-                {
-                    x.Alias = "price";
-                    x.Name = "Price";
-                    x.Description = "";
-                    x.SortOrder = 30;
-                }),
-                CreatePropertyType(await umStockDataType.Value, x =>
-                {
-                    x.Alias = "stock";
-                    x.Name = "Capacity";
-                    x.Description = "";
-                    x.SortOrder = 40;
-                }),
-                CreatePropertyType(await dateTimeDataType.Value, x =>
-                {
-                    x.Alias = "start";
-                    x.Name = "Capacity";
-                    x.Description = "";
-                    x.SortOrder = 50;
-                }),
-                CreatePropertyType(await dateTimeDataType.Value, x =>
-                {
-                    x.Alias = "end";
-                    x.Name = "End";
-                    x.Description = "";
-                    x.SortOrder = 60;
-                }),
-                CreatePropertyType(await contentPickerDataType.Value, x =>
-                {
-                    x.Alias = "refundPolicyPage";
-                    x.Name = "Refund Policy page";
-                    x.Description = "";
-                    x.SortOrder = 60;
-                }),
-            };
+                    CreatePropertyType(gmapDataType, x =>
+                    {
+                        x.Alias = "location";
+                        x.Name = "Location";
+                        x.Description = "Event physical location";
+                        x.SortOrder = 10;
+                    }),
+                    CreatePropertyType( textareaDataType, x =>
+                    {
+                        x.Alias = "summary";
+                        x.Name = "Summary";
+                        x.Description = "";
+                        x.SortOrder = 10;
+                    }),
+                    CreatePropertyType( rteDataType, x =>
+                    {
+                        x.Alias = "description";
+                        x.Name = "Description";
+                        x.Description = "";
+                        x.SortOrder = 20;
+                    }),
+                    CreatePropertyType( umPriceDataType, x =>
+                    {
+                        x.Alias = "price";
+                        x.Name = "Price";
+                        x.Description = "";
+                        x.SortOrder = 30;
+                    }),
+                    CreatePropertyType( umStockDataType, x =>
+                    {
+                        x.Alias = "stock";
+                        x.Name = "Capacity";
+                        x.Description = "";
+                        x.SortOrder = 40;
+                    }),
+                    CreatePropertyType( dateTimeDataType, x =>
+                    {
+                        x.Alias = "start";
+                        x.Name = "Capacity";
+                        x.Description = "";
+                        x.SortOrder = 50;
+                    }),
+                    CreatePropertyType( dateTimeDataType, x =>
+                    {
+                        x.Alias = "end";
+                        x.Name = "End";
+                        x.Description = "";
+                        x.SortOrder = 60;
+                    }),
+                    CreatePropertyType( contentPickerDataType, x =>
+                    {
+                        x.Alias = "refundPolicyPage";
+                        x.Name = "Refund Policy page";
+                        x.Description = "";
+                        x.SortOrder = 60;
+                    })
+                ];
+            }
+            catch (Exception ex)
+            {
+                var e = ex;
+            }
 
             // Base folder
             existing = _contentTypeService.Get(Constants.ContentTypes.Guids.BaseFolder);
             if (existing == null)
             {
-                var contentType = CreateContentType(-1, x =>
+                var containerAttempt = _contentTypeService.CreateContainer(-1, Constants.ContentTypes.Guids.BaseFolder, "Eventry");
+                if(containerAttempt.Success == false)
                 {
-                    x.Key = Constants.ContentTypes.Guids.BaseFolder;
-                    x.Alias = Constants.ContentTypes.Aliases.BaseFolder;
-                    x.Name = "Eventry";
-                });
+                    throw new Exception("Failed to create container");
+                }
+                
+                var container = containerAttempt.Result?.Entity;
 
-                _contentTypeService.Save(contentType);
-
-                baseFolderContentTypeId = contentType.Id;
+                baseFolderContentTypeId = container!.Id;
             }
             else
             {

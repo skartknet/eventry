@@ -6,7 +6,6 @@
         {
             public static class Aliases
             {
-                public const string BaseFolder = "eventryBaseFolder";
                 public const string PhysicalEvent = "eventryPhysicalEvent";
                 public const string OnlineEvent = "eventryOnlineEvent";
             }
@@ -26,6 +25,8 @@
             {
                 public static readonly Guid Tags = new("242cd138-211c-4ba5-9629-3acda8f6bb1b");
                 public static readonly Guid Maps = new("b184405d-435c-4597-819c-ad43133b288b");
+                public static readonly Guid Price = new("84b8d092-4335-4a20-b591-4a1b22305e81");
+                public static readonly Guid Stock = new("4a78c330-2f42-4278-bd54-1ff091b16e0c");
             }
         }
     }

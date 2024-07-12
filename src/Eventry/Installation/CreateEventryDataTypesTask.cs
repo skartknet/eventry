@@ -32,15 +32,12 @@ namespace Eventry.Installation
                 if (_propertyEditors.TryGet(Bergmania.OpenStreetMap.Core.Constants.EditorAlias, out IDataEditor? editor))
                 {
 
-                    var dataType = CreateDataType(editor, x =>
-
+                    CreateDataType(editor, x =>
                     {
                         x.Key = Constants.DataTypes.Guids.Maps;
                         x.Name = "[Eventry] Maps";
-                        x.DatabaseType = ValueStorageType.Nvarchar;
-                    });
+                    }, new Bergmania.OpenStreetMap.Core.OpenStreetMapConfiguration());
 
-                    _dataTypeService.Save(dataType, -1);
                 }
             }
 
@@ -50,29 +47,63 @@ namespace Eventry.Installation
             {
                 if (_propertyEditors.TryGet(Umbraco.Cms.Core.Constants.PropertyEditors.Aliases.Tags, out IDataEditor? editor))
                 {
-                    var dataType = CreateDataType(editor, x =>
+                    CreateDataType(editor, x =>
                     {
                         x.Key = Constants.DataTypes.Guids.Tags;
-                        x.Name = "[Eventry] Tags";
-                        x.DatabaseType = ValueStorageType.Nvarchar;
-
-                        x.ConfigurationAs<TagConfiguration>()!.Group = "Eventry";
+                        x.Name = "[Eventry] Tags";                        
+                    },
+                    new TagConfiguration
+                    {
+                        Group = "Eventry"
                     });
 
-                    _dataTypeService.Save(dataType, -1);
+
                 }
             }
 
+            var currentPriceField = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Price);
+            if (currentPriceField == null)
+            {
+                if (_propertyEditors.TryGet(Umbraco.Commerce.Cms.Constants.PropertyEditors.Aliases.Price, out IDataEditor? editor))
+                {
+                    CreateDataType(editor, x =>
+                    {
+                        x.Key = Constants.DataTypes.Guids.Price;
+                        x.Name = "[Eventry] Price";
+                    });
 
+                }
+            }
+
+            var currentStockField = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Stock);
+            if (currentStockField == null)
+            {
+                if (_propertyEditors.TryGet(Umbraco.Commerce.Cms.Constants.PropertyEditors.Aliases.Stock, out IDataEditor? editor))
+                {
+                    CreateDataType(editor, x =>
+                    {
+                        x.Key = Constants.DataTypes.Guids.Stock;
+                        x.Name = "[Eventry] Stock";
+                    });
+
+                }
+            }
         }
 
-        private DataType CreateDataType(IDataEditor dataEditor, Action<DataType> config)
+        private void CreateDataType(IDataEditor dataEditor, Action<DataType> config, object? typeSpecificConfig = null)
         {
             var dataType = new DataType(dataEditor, _configurationEditorJsonSerializer);
 
             config.Invoke(dataType);
 
-            return dataType;
+            if (typeSpecificConfig is not null)
+            {
+                dataType.ConfigurationData = dataType.Editor!.GetConfigurationEditor()
+                                                       .FromConfigurationObject(typeSpecificConfig, _configurationEditorJsonSerializer);
+            }
+
+            _dataTypeService.Save(dataType, -1);
+
         }
     }
 }

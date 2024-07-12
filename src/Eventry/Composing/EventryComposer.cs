@@ -45,13 +45,13 @@ namespace Eventry.Composing
             var dataTypesTask = new CreateEventryDataTypesTask(_dataTypeService,
                                                                _propertyEditors,
                                                                _configurationEditorJsonSerializer);
-            Task.Run(() => dataTypesTask.Execute());
+            Task.Run(dataTypesTask.Execute).GetAwaiter().GetResult();
 
             var docTypesTask = new CreateEventryDocumentTypesTask(_contentTypeService,
                                                                   _dataTypeService,
                                                                   _shortStringHelper,
                                                                   _propertyEditors);
-            Task.Run(() => docTypesTask.Execute());
+            Task.Run(docTypesTask.Execute).GetAwaiter().GetResult();
 
         }
 
