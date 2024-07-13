@@ -1,15 +1,9 @@
-﻿using System;
-using System.Linq;
-using Eventry.Installation;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Eventry.Installation;
 using Umbraco.Cms.Core.Composing;
-using Umbraco.Cms.Core.DependencyInjection;
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Cms.Core.Services.Implement;
 using Umbraco.Cms.Core.Strings;
-using Umbraco.Cms.Infrastructure.Migrations;
 using Umbraco.Commerce.Cms;
 
 namespace Eventry.Composing

@@ -2,7 +2,6 @@
 using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
-using Umbraco.Extensions;
 
 
 
@@ -51,7 +50,7 @@ namespace Eventry.Installation
                     CreateDataType(editor, x =>
                     {
                         x.Key = Constants.DataTypes.Guids.Tags;
-                        x.Name = "[Eventry] Tags"; 
+                        x.Name = "[Eventry] Tags";
                         x.EditorUiAlias = "Umb.PropertyEditorUi.Tags";
                     },
                     new TagConfiguration

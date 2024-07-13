@@ -59,18 +59,9 @@ namespace Eventry.Installation
                 baseFolderContentTypeId = existing.Id;
             }
 
-            PropertyType[]? shareProps = null;
+            var shareProps = new PropertyType[]
+            {
 
-            shareProps =
-            [
-
-                CreatePropertyType(gmapDataType, x =>
-                    {
-                        x.Alias = "location";
-                        x.Name = "Location";
-                        x.Description = "Event physical location";
-                        x.SortOrder = 10;
-                    }),
                 CreatePropertyType(textareaDataType, x =>
                 {
                     x.Alias = "summary";
@@ -120,17 +111,27 @@ namespace Eventry.Installation
                     x.Description = "";
                     x.SortOrder = 70;
                 })
-            ];
+            };
 
+
+            var physicalEventProps = new List<IPropertyType>
+            {
+                CreatePropertyType(gmapDataType, x =>
+                {
+                    x.Alias = "location";
+                    x.Name = "Location";
+                    x.Description = "Event physical location";
+                    x.SortOrder = 10;
+                })
+            };
+            physicalEventProps.AddRange(shareProps);
 
             var onlineEventProps = new List<IPropertyType>();
-            
-            var physicalEventProps = new List<IPropertyType>();
-
+            onlineEventProps.AddRange(shareProps);
 
 
             var existingComposition = _contentTypeService.Get(Constants.ContentTypes.Guids.EventBaseComposition);
-            if(existingComposition is null)
+            if (existingComposition is null)
             {
                 var contentType = CreateContentType(baseFolderContentTypeId, x =>
                 {
@@ -141,7 +142,7 @@ namespace Eventry.Installation
                     x.IsElement = true;
                     x.PropertyGroups = new PropertyGroupCollection(new[]
                     {
-                        new PropertyGroup(new PropertyTypeCollection(true, shareProps))
+                        new PropertyGroup(new PropertyTypeCollection(true, physicalEventProps))
                         {
                             Alias = "settings",
                             Name = "Settings",
@@ -162,7 +163,7 @@ namespace Eventry.Installation
                 var hasSettingsGroup = existingComposition.PropertyGroups.Contains("Settings");
                 var settingsGroup = hasSettingsGroup
                     ? existingComposition.PropertyGroups["Settings"]
-                    : new PropertyGroup(new PropertyTypeCollection(true, shareProps))
+                    : new PropertyGroup(new PropertyTypeCollection(true, onlineEventProps))
                     {
                         Alias = "settings",
                         Name = "Settings",
@@ -201,7 +202,7 @@ namespace Eventry.Installation
                     x.Alias = Constants.ContentTypes.Aliases.PhysicalEvent;
                     x.Name = "Physical Event";
                     x.Icon = "icon-cash-register color-green";
-                    
+
                 });
 
                 var hasComposition = contentType.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
@@ -264,7 +265,7 @@ namespace Eventry.Installation
                     x.Alias = Constants.ContentTypes.Aliases.OnlineEvent;
                     x.Name = "Online Event";
                     x.Icon = "icon-cash-register color-green";
-                    
+
                 });
 
                 var hasComposition = contentType.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
