@@ -38,12 +38,12 @@ namespace Eventry.Tests
 
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(currentMapEditor, "map editor is null");
-                Assert.IsNotNull(currentEventryTags, "tags editor is null");
-                Assert.IsNotNull(currentPriceField, "price editor is null");
-                Assert.IsNotNull(currentStockField, "stock editor is null");
-                Assert.True(currentMapEditor?.ConfigurationData.Count > 0);
-                Assert.True(currentEventryTags?.ConfigurationData.Count > 0);
+                Assert.That(currentMapEditor is not null, "map editor is null");
+                Assert.That(currentEventryTags is not null, "tags editor is null");
+                Assert.That(currentPriceField is not null, "price editor is null");
+                Assert.That(currentStockField is not null, "stock editor is null");
+                Assert.That(currentMapEditor?.ConfigurationData.Count > 0);
+                Assert.That(currentEventryTags?.ConfigurationData.Count > 0);
             });
 
 
@@ -80,18 +80,18 @@ namespace Eventry.Tests
             var onlineEvent = contentTypeService.Get(Constants.ContentTypes.Guids.OnlineEvent);
             var eventsListing = contentTypeService.Get(Constants.ContentTypes.Guids.EventsListing);
 
-            var physicalEventComposition = physicalEvent?.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
-            var onlineEventComposition = onlineEvent?.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
+            var physicalEventCompositionExists = physicalEvent?.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
+            var onlineEventCompositionExists = onlineEvent?.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
 
             Assert.Multiple(() =>
             {
-                Assert.IsNotNull(existingContainer, "Base folder doesn't exist");
-                Assert.IsNotNull(physicalEvent, "Physical event doesn't exist");
-                Assert.IsNotNull(onlineEvent, "Online event doesn't exist");
-                Assert.IsNotNull(eventsListing, "Events listing doesn't exist");
+                Assert.That(existingContainer is not null, "Base folder doesn't exist");
+                Assert.That(physicalEvent is not null, "Physical event doesn't exist");
+                Assert.That(onlineEvent is not null, "Online event doesn't exist");
+                Assert.That(eventsListing is not null, "Events listing doesn't exist");
 
-                Assert.True(physicalEventComposition, "Physical Event doesn't contain the Event Base composition");
-                Assert.True(onlineEventComposition, "Online Event doesn't contain the Event Base composition");
+                Assert.That(physicalEventCompositionExists == true, "Physical Event doesn't contain the Event Base composition");
+                Assert.That(onlineEventCompositionExists == true, "Online Event doesn't contain the Event Base composition");
             });
         }
     }
