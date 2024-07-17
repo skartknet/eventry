@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <StaticWebAssetBasePath>App_Plugins/Eventry</StaticWebAssetBasePath>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -14,6 +15,16 @@
     <PackageTags>umbraco plugin package</PackageTags>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Content Remove="Client\package.json" />
+    <Content Remove="Client\tsconfig.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Client\package.json" />
+    <None Include="Client\tsconfig.json" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Umbraco.Cms.Web.Website" Version="14.0.0" />
@@ -22,5 +33,21 @@
 	  <PackageReference Include="Umbraco.Commerce.Cms" Version="14.0.0-alpha4" />
 	  <PackageReference Include="Umbraco.Commerce.Cms.Startup" Version="14.0.0-alpha4" />
 	  <PackageReference Include="Umbraco.Commerce.Core" Version="14.0.0-alpha4" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Content Update="wwwroot\App_Plugins\Eventry\eventry.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\App_Plugins\Eventry\style.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\eventry.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\style.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

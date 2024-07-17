@@ -9,6 +9,7 @@
                 public const string EventBaseComposition = "eventryEventBaseComposition";
                 public const string PhysicalEvent = "eventryPhysicalEvent";
                 public const string OnlineEvent = "eventryOnlineEvent";
+                public const string EventListing = "eventryEventListing";
             }
 
             public static class Guids
@@ -17,6 +18,7 @@
                 public static readonly Guid EventBaseComposition = new("45a4e210-c226-42ba-8258-50d3b19a4276");
                 public static readonly Guid PhysicalEvent = new("d09c9116-48cf-4680-bf98-c114c4a69bc4");
                 public static readonly Guid OnlineEvent = new("967fc6bf-d02a-49af-8580-faae9cee4a2b");
+                public static readonly Guid EventsListing = new("f6f00e22-d3bf-4fa1-b658-55687307bf7b");
             }
 
         }

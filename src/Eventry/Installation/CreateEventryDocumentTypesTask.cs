@@ -124,10 +124,8 @@ namespace Eventry.Installation
                     x.SortOrder = 10;
                 })
             };
-            physicalEventProps.AddRange(shareProps);
 
             var onlineEventProps = new List<IPropertyType>();
-            onlineEventProps.AddRange(shareProps);
 
 
             var existingComposition = _contentTypeService.Get(Constants.ContentTypes.Guids.EventBaseComposition);
@@ -138,11 +136,11 @@ namespace Eventry.Installation
                     x.Key = Constants.ContentTypes.Guids.EventBaseComposition;
                     x.Alias = Constants.ContentTypes.Aliases.EventBaseComposition;
                     x.Name = "Event Base Composition";
-                    x.Icon = "icon-cash-register color-yellow";
+                    x.Icon = "icon-brick color-yellow";
                     x.IsElement = true;
                     x.PropertyGroups = new PropertyGroupCollection(new[]
                     {
-                        new PropertyGroup(new PropertyTypeCollection(true, physicalEventProps))
+                        new PropertyGroup(new PropertyTypeCollection(true, shareProps))
                         {
                             Alias = "settings",
                             Name = "Settings",
@@ -201,8 +199,7 @@ namespace Eventry.Installation
                     x.Key = Constants.ContentTypes.Guids.PhysicalEvent;
                     x.Alias = Constants.ContentTypes.Aliases.PhysicalEvent;
                     x.Name = "Physical Event";
-                    x.Icon = "icon-cash-register color-green";
-
+                    x.Icon = "icon-map-marker color-green";                    
                 });
 
                 var hasComposition = contentType.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
@@ -217,30 +214,34 @@ namespace Eventry.Installation
             {
                 var saveExisting = false;
                 var hasSettingsGroup = existing.PropertyGroups.Contains("Settings");
+
                 var settingsGroup = hasSettingsGroup
-                    ? existing.PropertyGroups["Settings"]
-                    : new PropertyGroup(new PropertyTypeCollection(true, physicalEventProps))
-                    {
-                        Alias = "settings",
-                        Name = "Settings",
-                        Type = PropertyGroupType.Group,
-                        SortOrder = 100
-                    };
+                                        ? existing.PropertyGroups["Settings"]
+                                        : new PropertyGroup(new PropertyTypeCollection(true, physicalEventProps))
+                                        {
+                                            Alias = "settings",
+                                            Name = "Settings",
+                                            Type = PropertyGroupType.Group,
+                                            SortOrder = 100
+                                        };
+
+                if (!hasSettingsGroup)
+                {
+
+                    existing.PropertyGroups.Add(settingsGroup);
+                    saveExisting = true;
+                }
 
                 foreach (var prop in physicalEventProps)
                 {
-                    if (settingsGroup.PropertyTypes is not null && !settingsGroup.PropertyTypes.Contains(prop.Alias))
+                    if (settingsGroup.PropertyTypes is not null && !existing.PropertyTypeExists(prop.Alias))
                     {
                         settingsGroup.PropertyTypes.Add(prop);
                         saveExisting = true;
                     }
                 }
 
-                if (!hasSettingsGroup)
-                {
-                    existing.PropertyGroups.Add(settingsGroup);
-                    saveExisting = true;
-                }
+
 
                 var hasComposition = existing.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
                 if (!hasComposition)
@@ -264,7 +265,7 @@ namespace Eventry.Installation
                     x.Key = Constants.ContentTypes.Guids.OnlineEvent;
                     x.Alias = Constants.ContentTypes.Aliases.OnlineEvent;
                     x.Name = "Online Event";
-                    x.Icon = "icon-cash-register color-green";
+                    x.Icon = "icon-display color-green";
 
                 });
 
@@ -281,30 +282,33 @@ namespace Eventry.Installation
             {
                 var saveExisting = false;
                 var hasSettingsGroup = existing.PropertyGroups.Contains("Settings");
-                var settingsGroup = hasSettingsGroup
-                    ? existing.PropertyGroups["Settings"]
-                    : new PropertyGroup(new PropertyTypeCollection(true, onlineEventProps))
-                    {
-                        Alias = "settings",
-                        Name = "Settings",
-                        Type = PropertyGroupType.Group,
-                        SortOrder = 100
-                    };
 
-                foreach (var prop in onlineEventProps)
-                {
-                    if (settingsGroup.PropertyTypes is not null && !settingsGroup.PropertyTypes.Contains(prop.Alias))
-                    {
-                        settingsGroup.PropertyTypes.Add(prop);
-                        saveExisting = true;
-                    }
-                }
+                var settingsGroup = hasSettingsGroup
+                                    ? existing.PropertyGroups["Settings"]
+                                    : new PropertyGroup(new PropertyTypeCollection(true, onlineEventProps))
+                                    {
+                                        Alias = "settings",
+                                        Name = "Settings",
+                                        Type = PropertyGroupType.Group,
+                                        SortOrder = 100
+                                    };
 
                 if (!hasSettingsGroup)
                 {
                     existing.PropertyGroups.Add(settingsGroup);
                     saveExisting = true;
                 }
+
+
+                foreach (var prop in onlineEventProps)
+                {
+                    if (settingsGroup.PropertyTypes is not null && !existing.PropertyTypeExists(prop.Alias))
+                    {
+                        settingsGroup.PropertyTypes.Add(prop);
+                        saveExisting = true;
+                    }
+                }
+
 
                 var hasComposition = existing.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
                 if (!hasComposition)
@@ -317,6 +321,26 @@ namespace Eventry.Installation
                 {
                     _contentTypeService.Save(existing);
                 }
+            }
+
+            existing = _contentTypeService.Get(Constants.ContentTypes.Guids.EventsListing);
+            if(existing is null)
+            {
+                var contentType = CreateContentType(baseFolderContentTypeId, x =>
+                {
+                    x.Key = Constants.ContentTypes.Guids.EventsListing;
+                    x.Alias = Constants.ContentTypes.Aliases.EventListing;
+                    x.Name = "Events";
+                    x.Icon = "icon-cash-register color-green";
+                    x.AllowedContentTypes = [
+                       new ContentTypeSort(Constants.ContentTypes.Guids.OnlineEvent, 1, Constants.ContentTypes.Aliases.OnlineEvent),
+                       new ContentTypeSort(Constants.ContentTypes.Guids.PhysicalEvent, 1, Constants.ContentTypes.Aliases.PhysicalEvent)
+                    ];
+                   
+                });
+
+                _contentTypeService.Save(contentType);
+
             }
 
         }

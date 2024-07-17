@@ -11,7 +11,7 @@ namespace Eventry.Tests
 {
 
     [TestFixture]
-    [UmbracoTest(Database = UmbracoTestOptions.Database.NewSchemaPerFixture)]
+    [UmbracoTest(Database = UmbracoTestOptions.Database.NewSchemaPerTest)]
     public class TypesCreationTests : UmbracoIntegrationTest
     {
 
@@ -78,6 +78,7 @@ namespace Eventry.Tests
             var existingContainer = contentTypeService.GetContainer(Constants.ContentTypes.Guids.BaseFolder);
             var physicalEvent = contentTypeService.Get(Constants.ContentTypes.Guids.PhysicalEvent);
             var onlineEvent = contentTypeService.Get(Constants.ContentTypes.Guids.OnlineEvent);
+            var eventsListing = contentTypeService.Get(Constants.ContentTypes.Guids.EventsListing);
 
             var physicalEventComposition = physicalEvent?.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
             var onlineEventComposition = onlineEvent?.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
@@ -87,6 +88,7 @@ namespace Eventry.Tests
                 Assert.IsNotNull(existingContainer, "Base folder doesn't exist");
                 Assert.IsNotNull(physicalEvent, "Physical event doesn't exist");
                 Assert.IsNotNull(onlineEvent, "Online event doesn't exist");
+                Assert.IsNotNull(eventsListing, "Events listing doesn't exist");
 
                 Assert.True(physicalEventComposition, "Physical Event doesn't contain the Event Base composition");
                 Assert.True(onlineEventComposition, "Online Event doesn't contain the Event Base composition");
