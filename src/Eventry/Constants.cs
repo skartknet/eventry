@@ -2,8 +2,29 @@
 {
     public static class Constants
     {
-        public static class ContentTypes
+        public static class Templates
         {
+            public static class Names
+            {
+                public const string Layout = "[Eventry] Events Layout";
+                public const string PhysicalEvent = "[Eventry] Physical Event";
+                public const string OnlineEvent = "[Eventry] Online Event";
+                public const string EventListing = "[Eventry] Event Listing";
+            }
+           
+
+            public static class Aliases
+            {
+                public const string Layout = "eventryLayout";                
+                public const string PhysicalEvent = "eventryPhysicalEvent";
+                public const string OnlineEvent = "eventryOnlineEvent";
+                public const string EventListing = "eventryEventListing";
+            }          
+        }
+
+        public static class ContentTypes
+        {      
+
             public static class Aliases
             {
                 public const string EventBaseComposition = "eventryEventBaseComposition";

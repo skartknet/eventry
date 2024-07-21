@@ -3,289 +3,225 @@ using Umbraco.Cms.Core.PropertyEditors;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 
-namespace Eventry.Installation
+namespace Eventry.Installation;
+
+public class CreateEventryDocumentTypesTask
 {
-    public class CreateEventryDocumentTypesTask
+    private readonly IContentTypeService _contentTypeService;
+    private readonly IDataTypeService _dataTypeService;
+
+    private readonly IShortStringHelper _shortStringHelper;
+    private readonly ITemplateService _templateService;
+    private readonly PropertyEditorCollection _propertyEditors;
+
+    public CreateEventryDocumentTypesTask(IContentTypeService contentTypeService,
+                                                          IDataTypeService dataTypeService,
+                                                          IShortStringHelper shortStringHelper,
+                                                          ITemplateService templateService,
+                                                          PropertyEditorCollection propertyEditors)
     {
-        private readonly IContentTypeService _contentTypeService;
-        private readonly IDataTypeService _dataTypeService;
+        _contentTypeService = contentTypeService;
+        _dataTypeService = dataTypeService;
+        _shortStringHelper = shortStringHelper;
+        _templateService = templateService;
+        _propertyEditors = propertyEditors;
+    }
 
-        private readonly IShortStringHelper _shortStringHelper;
-        private readonly PropertyEditorCollection _propertyEditors;
+    public async Task Execute()
+    {
 
-        public CreateEventryDocumentTypesTask(IContentTypeService contentTypeService,
-                                                              IDataTypeService dataTypeService,
-                                                              IShortStringHelper shortStringHelper,
-                                                              PropertyEditorCollection propertyEditors)
+        // Setup lazy data types
+        var gmapDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Maps) ?? throw new NullReferenceException("Map datatype not available");
+        var textareaDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.TextareaGuid) ?? throw new NullReferenceException("Textarea datatype not available");
+        var rteDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.RichtextEditorGuid) ?? throw new NullReferenceException("RTE datatype not available");
+        var dateTimeDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.DatePickerWithTimeGuid) ?? throw new NullReferenceException("DatePicker datatype not available");
+        var contentPickerDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.ContentPickerGuid) ?? throw new NullReferenceException("ContenPicker datatype not available");
+        var umPriceDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Price) ?? throw new NullReferenceException("Price datatype not available");
+        var umStockDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Stock) ?? throw new NullReferenceException("Stock datatype not available");
+
+
+        IContentType? existing;
+        int baseFolderContentTypeId;
+
+        // Base folder
+        var existingFolder = _contentTypeService.GetContainer(Constants.ContentTypes.Guids.BaseFolder);
+        if (existingFolder == null)
         {
-            _contentTypeService = contentTypeService;
-            _dataTypeService = dataTypeService;
-            _shortStringHelper = shortStringHelper;
-            _propertyEditors = propertyEditors;
+            var containerAttempt = _contentTypeService.CreateContainer(-1, Constants.ContentTypes.Guids.BaseFolder, "Eventry");
+
+            if (containerAttempt.Success == false)
+            {
+                throw new Exception("Failed to create container");
+            }
+
+            var container = containerAttempt.Result?.Entity;
+
+            baseFolderContentTypeId = container!.Id;
+        }
+        else
+        {
+            baseFolderContentTypeId = existingFolder.Id;
         }
 
-        public async Task Execute()
+        var shareProps = new PropertyType[]
         {
 
-            // Setup lazy data types
-            var gmapDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Maps) ?? throw new NullReferenceException("Map datatype not available");
-            var textareaDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.TextareaGuid) ?? throw new NullReferenceException("Textarea datatype not available");
-            var rteDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.RichtextEditorGuid) ?? throw new NullReferenceException("RTE datatype not available");
-            var dateTimeDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.DatePickerWithTimeGuid) ?? throw new NullReferenceException("DatePicker datatype not available");
-            var contentPickerDataType = await _dataTypeService.GetAsync(Umbraco.Cms.Core.Constants.DataTypes.Guids.ContentPickerGuid) ?? throw new NullReferenceException("ContenPicker datatype not available");
-            var umPriceDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Price) ?? throw new NullReferenceException("Price datatype not available");
-            var umStockDataType = await _dataTypeService.GetAsync(Constants.DataTypes.Guids.Stock) ?? throw new NullReferenceException("Stock datatype not available");
-
-
-            IContentType? existing;
-            int baseFolderContentTypeId;
-
-            // Base folder
-            existing = _contentTypeService.Get(Constants.ContentTypes.Guids.BaseFolder);
-            if (existing == null)
+            CreatePropertyType(textareaDataType, x =>
             {
-                var containerAttempt = _contentTypeService.CreateContainer(-1, Constants.ContentTypes.Guids.BaseFolder, "Eventry");
-                if (containerAttempt.Success == false)
-                {
-                    throw new Exception("Failed to create container");
-                }
-
-                var container = containerAttempt.Result?.Entity;
-
-                baseFolderContentTypeId = container!.Id;
-            }
-            else
+                x.Alias = "summary";
+                x.Name = "Summary";
+                x.Description = "";
+                x.SortOrder = 10;
+            }),
+            CreatePropertyType(rteDataType, x =>
             {
-                baseFolderContentTypeId = existing.Id;
-            }
-
-            var shareProps = new PropertyType[]
+                x.Alias = "description";
+                x.Name = "Description";
+                x.Description = "";
+                x.SortOrder = 20;
+            }),
+            CreatePropertyType(umPriceDataType, x =>
             {
-
-                CreatePropertyType(textareaDataType, x =>
-                {
-                    x.Alias = "summary";
-                    x.Name = "Summary";
-                    x.Description = "";
-                    x.SortOrder = 10;
-                }),
-                CreatePropertyType(rteDataType, x =>
-                {
-                    x.Alias = "description";
-                    x.Name = "Description";
-                    x.Description = "";
-                    x.SortOrder = 20;
-                }),
-                CreatePropertyType(umPriceDataType, x =>
-                {
-                    x.Alias = "price";
-                    x.Name = "Price";
-                    x.Description = "";
-                    x.SortOrder = 30;
-                }),
-                CreatePropertyType(umStockDataType, x =>
-                {
-                    x.Alias = "stock";
-                    x.Name = "Capacity";
-                    x.Description = "";
-                    x.SortOrder = 40;
-                }),
-                CreatePropertyType(dateTimeDataType, x =>
-                {
-                    x.Alias = "start";
-                    x.Name = "Start";
-                    x.Description = "";
-                    x.SortOrder = 50;
-                }),
-                CreatePropertyType(dateTimeDataType, x =>
-                {
-                    x.Alias = "end";
-                    x.Name = "End";
-                    x.Description = "";
-                    x.SortOrder = 60;
-                }),
-                CreatePropertyType(contentPickerDataType, x =>
-                {
-                    x.Alias = "refundPolicyPage";
-                    x.Name = "Refund Policy page";
-                    x.Description = "";
-                    x.SortOrder = 70;
-                })
-            };
-
-
-            var physicalEventProps = new List<IPropertyType>
+                x.Alias = "price";
+                x.Name = "Price";
+                x.Description = "";
+                x.SortOrder = 30;
+            }),
+            CreatePropertyType(umStockDataType, x =>
             {
-                CreatePropertyType(gmapDataType, x =>
-                {
-                    x.Alias = "location";
-                    x.Name = "Location";
-                    x.Description = "Event physical location";
-                    x.SortOrder = 10;
-                })
-            };
-
-            var onlineEventProps = new List<IPropertyType>();
-
-
-            var existingComposition = _contentTypeService.Get(Constants.ContentTypes.Guids.EventBaseComposition);
-            if (existingComposition is null)
+                x.Alias = "stock";
+                x.Name = "Capacity";
+                x.Description = "";
+                x.SortOrder = 40;
+            }),
+            CreatePropertyType(dateTimeDataType, x =>
             {
-                var contentType = CreateContentType(baseFolderContentTypeId, x =>
-                {
-                    x.Key = Constants.ContentTypes.Guids.EventBaseComposition;
-                    x.Alias = Constants.ContentTypes.Aliases.EventBaseComposition;
-                    x.Name = "Event Base Composition";
-                    x.Icon = "icon-brick color-yellow";
-                    x.IsElement = true;
-                    x.PropertyGroups = new PropertyGroupCollection(new[]
-                    {
-                        new PropertyGroup(new PropertyTypeCollection(true, shareProps))
-                        {
-                            Alias = "settings",
-                            Name = "Settings",
-                            Type = PropertyGroupType.Group,
-                            SortOrder = 50
-                        }
-                    });
-                });
-
-                _contentTypeService.Save(contentType);
-
-                existingComposition = contentType;
-
-            }
-            else
+                x.Alias = "start";
+                x.Name = "Start";
+                x.Description = "";
+                x.SortOrder = 50;
+            }),
+            CreatePropertyType(dateTimeDataType, x =>
             {
-                var saveExisting = false;
-                var hasSettingsGroup = existingComposition.PropertyGroups.Contains("Settings");
-                var settingsGroup = hasSettingsGroup
-                    ? existingComposition.PropertyGroups["Settings"]
-                    : new PropertyGroup(new PropertyTypeCollection(true, onlineEventProps))
+                x.Alias = "end";
+                x.Name = "End";
+                x.Description = "";
+                x.SortOrder = 60;
+            }),
+            CreatePropertyType(contentPickerDataType, x =>
+            {
+                x.Alias = "refundPolicyPage";
+                x.Name = "Refund Policy page";
+                x.Description = "";
+                x.SortOrder = 70;
+            })
+        };
+
+
+        var physicalEventProps = new List<IPropertyType>
+        {
+            CreatePropertyType(gmapDataType, x =>
+            {
+                x.Alias = "location";
+                x.Name = "Location";
+                x.Description = "Event physical location";
+                x.SortOrder = 10;
+            })
+        };
+
+        var onlineEventProps = new List<IPropertyType>();
+
+
+        var existingComposition = _contentTypeService.Get(Constants.ContentTypes.Guids.EventBaseComposition);
+        if (existingComposition is null)
+        {
+            var contentType = CreateContentType(baseFolderContentTypeId, x =>
+            {
+                x.Key = Constants.ContentTypes.Guids.EventBaseComposition;
+                x.Alias = Constants.ContentTypes.Aliases.EventBaseComposition;
+                x.Name = "Event Base Composition";
+                x.Icon = "icon-brick color-yellow";
+                x.IsElement = true;
+                x.PropertyGroups = new PropertyGroupCollection(new[]
+                {
+                    new PropertyGroup(new PropertyTypeCollection(true, shareProps))
                     {
                         Alias = "settings",
                         Name = "Settings",
                         Type = PropertyGroupType.Group,
-                        SortOrder = 100
-                    };
-
-                foreach (var prop in shareProps)
-                {
-                    if (settingsGroup.PropertyTypes is not null && !settingsGroup.PropertyTypes.Contains(prop.Alias))
-                    {
-                        settingsGroup.PropertyTypes.Add(prop);
-                        saveExisting = true;
+                        SortOrder = 50
                     }
-                }
+                });
+            });
 
-                if (!hasSettingsGroup)
+            _contentTypeService.Save(contentType);
+
+            existingComposition = contentType;
+
+        }
+        else
+        {
+            var saveExisting = false;
+            var hasSettingsGroup = existingComposition.PropertyGroups.Contains("Settings");
+            var settingsGroup = hasSettingsGroup
+                ? existingComposition.PropertyGroups["Settings"]
+                : new PropertyGroup(new PropertyTypeCollection(true, onlineEventProps))
                 {
-                    existingComposition.PropertyGroups.Add(settingsGroup);
+                    Alias = "settings",
+                    Name = "Settings",
+                    Type = PropertyGroupType.Group,
+                    SortOrder = 100
+                };
+
+            foreach (var prop in shareProps)
+            {
+                if (settingsGroup.PropertyTypes is not null && !settingsGroup.PropertyTypes.Contains(prop.Alias))
+                {
+                    settingsGroup.PropertyTypes.Add(prop);
                     saveExisting = true;
                 }
-
-                if (saveExisting)
-                {
-                    _contentTypeService.Save(existing);
-                }
             }
 
-            // Physical event
-            existing = _contentTypeService.Get(Constants.ContentTypes.Guids.PhysicalEvent);
-            if (existing is null)
+            if (!hasSettingsGroup)
             {
-                var contentType = CreateContentType(baseFolderContentTypeId, x =>
-                {
-                    x.Key = Constants.ContentTypes.Guids.PhysicalEvent;
-                    x.Alias = Constants.ContentTypes.Aliases.PhysicalEvent;
-                    x.Name = "Physical Event";
-                    x.Icon = "icon-map-marker color-green";                    
-                });
-
-                var hasComposition = contentType.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
-                if (!hasComposition)
-                {
-                    contentType.AddContentType(existingComposition);
-                }
-
-                _contentTypeService.Save(contentType);
-            }
-            else
-            {
-                var saveExisting = false;
-                var hasSettingsGroup = existing.PropertyGroups.Contains("Settings");
-
-                var settingsGroup = hasSettingsGroup
-                                        ? existing.PropertyGroups["Settings"]
-                                        : new PropertyGroup(new PropertyTypeCollection(true, physicalEventProps))
-                                        {
-                                            Alias = "settings",
-                                            Name = "Settings",
-                                            Type = PropertyGroupType.Group,
-                                            SortOrder = 100
-                                        };
-
-                if (!hasSettingsGroup)
-                {
-
-                    existing.PropertyGroups.Add(settingsGroup);
-                    saveExisting = true;
-                }
-
-                foreach (var prop in physicalEventProps)
-                {
-                    if (settingsGroup.PropertyTypes is not null && !existing.PropertyTypeExists(prop.Alias))
-                    {
-                        settingsGroup.PropertyTypes.Add(prop);
-                        saveExisting = true;
-                    }
-                }
-
-
-
-                var hasComposition = existing.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
-                if (!hasComposition)
-                {
-                    existing.AddContentType(existingComposition);
-                }
-
-                if (saveExisting)
-                {
-                    _contentTypeService.Save(existing);
-                }
+                existingComposition.PropertyGroups.Add(settingsGroup);
+                saveExisting = true;
             }
 
-
-            // Online event
-            existing = _contentTypeService.Get(Constants.ContentTypes.Guids.OnlineEvent);
-            if (existing is null)
+            if (saveExisting)
             {
-                var contentType = CreateContentType(baseFolderContentTypeId, x =>
-                {
-                    x.Key = Constants.ContentTypes.Guids.OnlineEvent;
-                    x.Alias = Constants.ContentTypes.Aliases.OnlineEvent;
-                    x.Name = "Online Event";
-                    x.Icon = "icon-display color-green";
-
-                });
-
-                var hasComposition = contentType.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
-                if (!hasComposition)
-                {
-                    contentType.AddContentType(existingComposition);
-                }
-
-                _contentTypeService.Save(contentType);
-
+                _contentTypeService.Save(existingComposition);
             }
-            else
-            {
-                var saveExisting = false;
-                var hasSettingsGroup = existing.PropertyGroups.Contains("Settings");
+        }
 
-                var settingsGroup = hasSettingsGroup
+        // Physical event
+        existing = _contentTypeService.Get(Constants.ContentTypes.Guids.PhysicalEvent);
+        if (existing is null)
+        {
+            var contentType = CreateContentType(baseFolderContentTypeId, x =>
+            {
+                x.Key = Constants.ContentTypes.Guids.PhysicalEvent;
+                x.Alias = Constants.ContentTypes.Aliases.PhysicalEvent;
+                x.Name = "Physical Event";
+                x.Icon = "icon-map-marker color-green";
+            });
+
+            var hasComposition = contentType.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
+            if (!hasComposition)
+            {
+                contentType.AddContentType(existingComposition);
+            }
+
+            _contentTypeService.Save(contentType);
+        }
+        else
+        {
+            var saveExisting = false;
+            var hasSettingsGroup = existing.PropertyGroups.Contains("Settings");
+
+            var settingsGroup = hasSettingsGroup
                                     ? existing.PropertyGroups["Settings"]
-                                    : new PropertyGroup(new PropertyTypeCollection(true, onlineEventProps))
+                                    : new PropertyGroup(new PropertyTypeCollection(true, physicalEventProps))
                                     {
                                         Alias = "settings",
                                         Name = "Settings",
@@ -293,74 +229,151 @@ namespace Eventry.Installation
                                         SortOrder = 100
                                     };
 
-                if (!hasSettingsGroup)
+            if (!hasSettingsGroup)
+            {
+
+                existing.PropertyGroups.Add(settingsGroup);
+                saveExisting = true;
+            }
+
+            foreach (var prop in physicalEventProps)
+            {
+                if (settingsGroup.PropertyTypes is not null && !existing.PropertyTypeExists(prop.Alias))
                 {
-                    existing.PropertyGroups.Add(settingsGroup);
+                    settingsGroup.PropertyTypes.Add(prop);
                     saveExisting = true;
                 }
-
-
-                foreach (var prop in onlineEventProps)
-                {
-                    if (settingsGroup.PropertyTypes is not null && !existing.PropertyTypeExists(prop.Alias))
-                    {
-                        settingsGroup.PropertyTypes.Add(prop);
-                        saveExisting = true;
-                    }
-                }
-
-
-                var hasComposition = existing.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
-                if (!hasComposition)
-                {
-                    existing.AddContentType(existingComposition);
-                }
-
-
-                if (saveExisting)
-                {
-                    _contentTypeService.Save(existing);
-                }
             }
 
-            existing = _contentTypeService.Get(Constants.ContentTypes.Guids.EventsListing);
-            if(existing is null)
+
+
+            var hasComposition = existing.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
+            if (!hasComposition)
             {
-                var contentType = CreateContentType(baseFolderContentTypeId, x =>
-                {
-                    x.Key = Constants.ContentTypes.Guids.EventsListing;
-                    x.Alias = Constants.ContentTypes.Aliases.EventListing;
-                    x.Name = "Events";
-                    x.Icon = "icon-cash-register color-green";
-                    x.AllowedContentTypes = [
-                       new ContentTypeSort(Constants.ContentTypes.Guids.OnlineEvent, 1, Constants.ContentTypes.Aliases.OnlineEvent),
-                       new ContentTypeSort(Constants.ContentTypes.Guids.PhysicalEvent, 1, Constants.ContentTypes.Aliases.PhysicalEvent)
-                    ];
-                   
-                });
-
-                _contentTypeService.Save(contentType);
-
+                existing.AddContentType(existingComposition);
             }
 
+            if (saveExisting)
+            {
+                _contentTypeService.Save(existing);
+            }
         }
 
-        private ContentType CreateContentType(int parentId, Action<ContentType> config)
+
+        // Online event
+        existing = _contentTypeService.Get(Constants.ContentTypes.Guids.OnlineEvent);
+        if (existing is null)
         {
-            var contentType = new ContentType(_shortStringHelper, parentId);
+            var contentType = CreateContentType(baseFolderContentTypeId, x =>
+            {
+                x.Key = Constants.ContentTypes.Guids.OnlineEvent;
+                x.Alias = Constants.ContentTypes.Aliases.OnlineEvent;
+                x.Name = "Online Event";
+                x.Icon = "icon-display color-green";
+            });
 
-            config.Invoke(contentType);
+            var hasComposition = contentType.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
+            if (!hasComposition)
+            {
+                contentType.AddContentType(existingComposition);
+            }
 
-            return contentType;
+            _contentTypeService.Save(contentType);
+
         }
-
-        private PropertyType CreatePropertyType(IDataType dataType, Action<PropertyType> config)
+        else
         {
-            var propertyType = new PropertyType(_shortStringHelper, dataType);
+            var saveExisting = false;
+            var hasSettingsGroup = existing.PropertyGroups.Contains("Settings");
 
-            config.Invoke(propertyType);
+            var settingsGroup = hasSettingsGroup
+                                ? existing.PropertyGroups["Settings"]
+                                : new PropertyGroup(new PropertyTypeCollection(true, onlineEventProps))
+                                {
+                                    Alias = "settings",
+                                    Name = "Settings",
+                                    Type = PropertyGroupType.Group,
+                                    SortOrder = 100
+                                };
 
-            return propertyType;
+            if (!hasSettingsGroup)
+            {
+                existing.PropertyGroups.Add(settingsGroup);
+                saveExisting = true;
+            }
+
+
+            foreach (var prop in onlineEventProps)
+            {
+                if (settingsGroup.PropertyTypes is not null && !existing.PropertyTypeExists(prop.Alias))
+                {
+                    settingsGroup.PropertyTypes.Add(prop);
+                    saveExisting = true;
+                }
+            }
+
+
+            var hasComposition = existing.ContentTypeCompositionExists(Constants.ContentTypes.Aliases.EventBaseComposition);
+            if (!hasComposition)
+            {
+                existing.AddContentType(existingComposition);
+            }
+
+
+            if (saveExisting)
+            {
+                _contentTypeService.Save(existing);
+            }
         }
+
+        // Events Listing
+        existing = _contentTypeService.Get(Constants.ContentTypes.Guids.EventsListing);
+        if (existing is null)
+        {
+            var template = await _templateService.GetAsync(Constants.Templates.Aliases.Layout);
+            var contentType = CreateContentType(baseFolderContentTypeId, x =>
+            {
+                x.Key = Constants.ContentTypes.Guids.EventsListing;
+                x.Alias = Constants.ContentTypes.Aliases.EventListing;
+                x.Name = "Events";
+                x.Icon = "icon-cash-register color-green";
+                x.AllowedAsRoot = true;
+                x.AllowedContentTypes = [
+                   new ContentTypeSort(Constants.ContentTypes.Guids.OnlineEvent, 1, Constants.ContentTypes.Aliases.OnlineEvent),
+                   new ContentTypeSort(Constants.ContentTypes.Guids.PhysicalEvent, 2, Constants.ContentTypes.Aliases.PhysicalEvent)
+                ];
+
+                if (template is not null)
+                {
+                    x.AllowedTemplates = new List<ITemplate>
+                    {
+                        template
+                    };
+                }
+
+            });
+
+            _contentTypeService.Save(contentType);
+
+        }
+
+    }
+
+    private ContentType CreateContentType(int parentId, Action<ContentType> config)
+    {
+        var contentType = new ContentType(_shortStringHelper, parentId);
+
+        config.Invoke(contentType);
+
+        return contentType;
+    }
+
+    private PropertyType CreatePropertyType(IDataType dataType, Action<PropertyType> config)
+    {
+        var propertyType = new PropertyType(_shortStringHelper, dataType);
+
+        config.Invoke(propertyType);
+
+        return propertyType;
     }
 }

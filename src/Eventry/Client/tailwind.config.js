@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "../Views/Eventry/**/*.cshtml",
+    "../Views/**/*.cshtml",
     "./src/**/*.{js,ts}",
   ],
   theme: {

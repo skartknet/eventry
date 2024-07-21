@@ -58,6 +58,7 @@ namespace Eventry.Tests
             var propertyEditors = GetRequiredService<PropertyEditorCollection>();
             var stringHelper = GetRequiredService<IShortStringHelper>();
             var configurationEditorJsonSerializer = GetRequiredService<IConfigurationEditorJsonSerializer>();
+            var templateService = GetRequiredService<ITemplateService>();
 
             var dataTypesTask = new CreateEventryDataTypesTask(dataTypeService,
                                  propertyEditors,
@@ -69,6 +70,7 @@ namespace Eventry.Tests
             var contentTypesTask = new CreateEventryDocumentTypesTask(contentTypeService,
                                     dataTypeService,
                                     stringHelper,
+                                    templateService,
                                     propertyEditors);
 
             // SUT
@@ -93,6 +95,31 @@ namespace Eventry.Tests
                 Assert.That(physicalEventCompositionExists == true, "Physical Event doesn't contain the Event Base composition");
                 Assert.That(onlineEventCompositionExists == true, "Online Event doesn't contain the Event Base composition");
             });
+        }
+
+        [Test]
+        public async Task Should_Create_Eventry_Templates()
+        {
+            var templateService = GetRequiredService<ITemplateService>();
+            var stringHelper = GetRequiredService<IShortStringHelper>();
+
+            var templatesTask = new CreateEventryTemplatesTask(templateService,
+                                                        stringHelper);
+
+            // SUT
+            await templatesTask.Execute();
+
+            var listing = await templateService.GetAsync(Constants.Templates.Aliases.EventListing);
+            var onlineEvent = await templateService.GetAsync(Constants.Templates.Aliases.OnlineEvent);
+            var physicalEvent = await templateService.GetAsync(Constants.Templates.Aliases.PhysicalEvent);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(listing is not null, "Layout template doesn't exist");
+                Assert.That(onlineEvent is not null, "OnlineEvent template doesn't exist");
+                Assert.That(physicalEvent is not null, "PhysicalEvent template doesn't exist");
+            });
+
         }
     }
 }

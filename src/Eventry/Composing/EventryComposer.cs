@@ -6,51 +6,61 @@ using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Commerce.Cms;
 
-namespace Eventry.Composing
+namespace Eventry.Composing;
+
+[ComposeAfter(typeof(UmbracoCommerceComposer))]
+public class EventryComposer : ComponentComposer<EventryComponent>
 {
-    [ComposeAfter(typeof(UmbracoCommerceComposer))]
-    public class EventryComposer : ComponentComposer<EventryComponent>
+}
+
+public class EventryComponent : IComponent
+{
+    private readonly IContentTypeService _contentTypeService;
+    private readonly IDataTypeService _dataTypeService;
+    private readonly IShortStringHelper _shortStringHelper;
+    private readonly PropertyEditorCollection _propertyEditors;
+    private readonly IConfigurationEditorJsonSerializer _configurationEditorJsonSerializer;
+    private readonly ITemplateService _templateService;
+
+    public EventryComponent(IDataTypeService dataTypeService,
+                            IContentTypeService contentTypeService,
+                            IShortStringHelper shortStringHelper,
+                            PropertyEditorCollection propertyEditors,
+                            IConfigurationEditorJsonSerializer configurationEditorJsonSerializer,
+                            ITemplateService templateService)
     {
+        _dataTypeService = dataTypeService;
+        _contentTypeService = contentTypeService;
+        _shortStringHelper = shortStringHelper;
+        _propertyEditors = propertyEditors;
+        _configurationEditorJsonSerializer = configurationEditorJsonSerializer;
+        _templateService = templateService;
     }
 
-    public class EventryComponent : IComponent
+    public void Initialize()
     {
-        private readonly IContentTypeService _contentTypeService;
-        private readonly IDataTypeService _dataTypeService;
-        private readonly IShortStringHelper _shortStringHelper;
-        private readonly PropertyEditorCollection _propertyEditors;
-        private readonly IConfigurationEditorJsonSerializer _configurationEditorJsonSerializer;
+        var dataTypesTask = new CreateEventryDataTypesTask(_dataTypeService,
+                                                           _propertyEditors,
+                                                           _configurationEditorJsonSerializer);
+        Task.Run(dataTypesTask.Execute).GetAwaiter().GetResult();
 
-        public EventryComponent(IDataTypeService dataTypeService,
-            IContentTypeService contentTypeService,
-            IShortStringHelper shortStringHelper,
-            PropertyEditorCollection propertyEditors,
-            IConfigurationEditorJsonSerializer configurationEditorJsonSerializer)
-        {
-            _dataTypeService = dataTypeService;
-            _contentTypeService = contentTypeService;
-            _shortStringHelper = shortStringHelper;
-            _propertyEditors = propertyEditors;
-            _configurationEditorJsonSerializer = configurationEditorJsonSerializer;
-        }
 
-        public void Initialize()
-        {
-            var dataTypesTask = new CreateEventryDataTypesTask(_dataTypeService,
-                                                               _propertyEditors,
-                                                               _configurationEditorJsonSerializer);
-            Task.Run(dataTypesTask.Execute).GetAwaiter().GetResult();
+        var templatesTask = new CreateEventryTemplatesTask(_templateService,
+                                                           _shortStringHelper);
 
-            var docTypesTask = new CreateEventryDocumentTypesTask(_contentTypeService,
-                                                                  _dataTypeService,
-                                                                  _shortStringHelper,
-                                                                  _propertyEditors);
-            Task.Run(docTypesTask.Execute).GetAwaiter().GetResult();
+        Task.Run(templatesTask.Execute).GetAwaiter().GetResult();
 
-        }
 
-        public void Terminate()
-        {
-        }
+        var docTypesTask = new CreateEventryDocumentTypesTask(_contentTypeService,
+                                                              _dataTypeService,
+                                                              _shortStringHelper,
+                                                              _templateService,
+                                                              _propertyEditors);
+        Task.Run(docTypesTask.Execute).GetAwaiter().GetResult();
+
+    }
+
+    public void Terminate()
+    {
     }
 }
